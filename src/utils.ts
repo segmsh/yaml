@@ -90,14 +90,23 @@ function scalarValue(value: string, sourceType?: string): string | number | bool
   return value;
 }
 
-function sequenceItemNode(node: Element): Node {
+function getSequenceItemValue(node: Element): {
+  properties: YamlProperties;
+  valueNode: Node;
+} {
   const firstChild = getFirstChild(node);
 
   if (node.tagName !== "li" || !firstChild) {
-    return firstChild ?? node;
+    return {
+      properties: getProperties(firstChild ?? node),
+      valueNode: firstChild ?? node,
+    };
   }
 
-  return getFirstChild(firstChild) ?? firstChild;
+  return {
+    properties: getProperties(firstChild),
+    valueNode: getFirstChild(firstChild) ?? firstChild,
+  };
 }
 
 function createYamlRow(keyNode: Node, valueNode: Node, keyMeta: any, valueMeta: any): Element {
@@ -142,6 +151,41 @@ function createYamlRow(keyNode: Node, valueNode: Node, keyMeta: any, valueMeta: 
   } as Element;
 }
 
+function createSequenceNode(tagName: "ul" | "ol", yamlMeta: Record<string, any>, children: Element[]): Element {
+  return {
+    type: HastTypeNames.element,
+    tagName,
+    properties: { yaml: yamlMeta },
+    children,
+  } as unknown as Element;
+}
+
+function createSequenceItem(itemNode: Node, itemMeta: any): Element {
+  return {
+    type: HastTypeNames.element,
+    tagName: "li",
+    properties: {
+      yaml: { spaceBefore: itemMeta?.spaceBefore },
+    },
+    children: [
+      {
+        type: HastTypeNames.element,
+        tagName: "p",
+        properties: {
+          typeof: typeof itemMeta?.value,
+          yaml: {
+            type: itemMeta?.type,
+            comment: itemMeta?.comment,
+            commentBefore: itemMeta?.commentBefore,
+            spaceBefore: itemMeta?.spaceBefore,
+          },
+        },
+        children: [itemNode],
+      } as unknown as Element,
+    ],
+  } as unknown as Element;
+}
+
 const astToString = (tree: Root): string => {
   const astToObject = (node: Node, properties: YamlProperties = {}): {} => {
     const { yaml: yamlProps, typeof: sourceType } = properties;
@@ -153,6 +197,11 @@ const astToString = (tree: Root): string => {
     if (hasTagName(node, "table")) {
       const tbody = asYamlNode(node).children?.[0] as Element;
       const map = new YAMLMap();
+      const yamlMeta = getYamlProperties(node);
+
+      if (yamlMeta) {
+        map.flow = yamlMeta.flow;
+      }
 
       tbody.children.forEach((child) => {
         map.add(astToObject(child) as Pair);
@@ -172,8 +221,8 @@ const astToString = (tree: Root): string => {
 
       node.children.forEach((child) => {
         const item = child as Element;
-        const sourceNode = sequenceItemNode(item);
-        seq.add(astToObject(sourceNode, getProperties(sourceNode)));
+        const { properties, valueNode } = getSequenceItemValue(item);
+        seq.add(astToObject(valueNode, properties));
       });
 
       return seq;
@@ -217,34 +266,18 @@ const stringToAst = (source: string): Root => {
       return {
         type: NodeTypeNames.yaml,
         tagName: "table",
-        properties: {},
+        properties: {
+          yaml: { flow: !!content.flow },
+        },
         children: [createElement("tbody", getMapRows(yamlNode, objectToAst))],
       } as Node;
     }
 
     if (isSeq(content)) {
-      return createElement(
+      return createSequenceNode(
         "ul",
-        { yaml: { flow: !!yamlNode?.flow, spaceBefore: yamlNode?.spaceBefore } },
-        content.items.map((item: any) =>
-          createElement(
-            "li",
-            { yaml: { spaceBefore: item.spaceBefore } },
-            createElement(
-              "p",
-              {
-                typeof: typeof item.value,
-                yaml: {
-                  type: item.type,
-                  comment: item.comment,
-                  commentBefore: item.commentBefore,
-                  spaceBefore: item.spaceBefore,
-                },
-              },
-              objectToAst(item),
-            ),
-          ),
-        ),
+        { flow: !!content.flow, spaceBefore: content.spaceBefore },
+        content.items.map((item: any) => createSequenceItem(objectToAst(item), item)),
       );
     }
 

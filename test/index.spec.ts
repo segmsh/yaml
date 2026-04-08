@@ -46,7 +46,11 @@ function processAndCompareWithExpected(filename: string) {
 
 describe("YamlProcessorTest", function () {
   describe("Expected Output Match", function () {
-    const fixtures = ["preserve-spacing.yaml"];
+    const fixtures = [
+      "preserve-spacing.yaml",
+      "flow-map.yaml",
+      "flow-root-sequence.yaml",
+    ];
 
     fixtures.forEach((filename) => {
       it(`should match expected output for ${filename}`, function () {
