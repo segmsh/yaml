@@ -1,0 +1,22 @@
+# Block and folded strings.
+single_line_text: |
+  This paragraph keeps
+  every line break.
+
+paragraph_text: >
+  This paragraph folds
+  into a single line.
+
+paragraph_edge_text: |-
+  This block keeps
+  its final line tight.
+
+unquoted_text: Plain text without quotes.
+
+title: Documentation guide
+redirects:
+  - >-
+    /docs/setup/getting-started
+  - >-
+    /docs/reference/configuration
+  - /docs/reference/cli

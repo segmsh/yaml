@@ -1,0 +1,27 @@
+# Product catalog fixture
+
+site:
+  title: "Example Docs"
+  published: true
+  version: 3
+
+products:
+  - name: "Alpha"
+    summary: "Primary product line"
+    tags:
+      - "stable"
+      - "web"
+  - name: "Beta"
+    summary: "Preview release"
+    tags: ["preview", "mobile"]
+
+navigation:
+  groups:
+    - label: "Getting Started"
+      links:
+        - "Install"
+        - "Quickstart"
+    - label: "Reference"
+      links:
+        - "API"
+        - "CLI"

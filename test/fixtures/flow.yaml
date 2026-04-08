@@ -1,0 +1,6 @@
+catalog:
+  tags: ["guide", "api"]
+  links:
+    - "Overview"
+    - "Reference"
+  details: { title: "Docs", status: active }

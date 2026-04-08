@@ -1,0 +1,12 @@
+company:
+  address: "42 Harbor Road, Portland, ME"
+  phone: "+1-207-555-0142"
+  website: "https://www.examplemarine.com"
+
+  social:
+    bluesky: "https://bsky.app/profile/examplemarine"
+    linkedin: "https://www.linkedin.com/company/example-marine"
+
+  teams:
+    - name: "Customer Success"
+      budget: 320000

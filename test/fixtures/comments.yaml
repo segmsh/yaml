@@ -1,0 +1,11 @@
+# Fixture with document, item, and inline comments.
+# It verifies comment preservation around scalar values.
+
+steps:
+  - Draft
+  # review comment
+  - Review
+  # publish comment
+  - Publish
+
+note: "Ready" # inline comment
