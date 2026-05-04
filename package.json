@@ -24,7 +24,7 @@
     "@segmsh/core": "^0.2.0"
   },
   "dependencies": {
-    "yaml": "^2.8.3"
+    "yaml": "^2.8.4"
   },
   "devDependencies": {
     "@types/node": "^25.5.2",
